@@ -5,6 +5,10 @@ using System.Web;
 
 namespace WebApplication1.ApiControllers
 {
+    /// <summary>
+    /// Data Transfer Object (DTO) representing a user's bill.
+    /// This object is used to send bill summary data from server to client.
+    /// </summary>
     public class BillDTO
     {
         public int UserID { get; set; }
@@ -12,6 +16,7 @@ namespace WebApplication1.ApiControllers
         public List<BillDetailDTO> Details { get; set; }
     }
 
+    // Data Transfer Object representing a single product/item in a bill
     public class BillDetailDTO
     {
         public int ProductID { get; set; }

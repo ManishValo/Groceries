@@ -1,21 +1,25 @@
+// Run these functions as soon as the DOM content is fully loaded
 window.addEventListener('DOMContentLoaded', () => {
-  updateUserSection();
-  loadUserOrders();
+  updateUserSection();   // Display user's name or login/signup links
+  loadUserOrders();      // Fetch and display user's order history
 });
 
-// Update user navbar section
+// Update user section in the navbar based on login status
 function updateUserSection() {
   const userText = document.getElementById('user-text');
-  const userJson = sessionStorage.getItem('loggedInUser');
+  const userJson = sessionStorage.getItem('loggedInUser'); // Retrieve user from session
   const user = userJson ? JSON.parse(userJson) : null;
 
   if (user && user.name) {
+    // If user is logged in, display welcome message and logout option
     userText.innerHTML = `
       Welcome, ${user.name} &nbsp;|&nbsp;
       <span id="spanLogout" class="logout" style="cursor:pointer; text-decoration:underline;">Logout</span>
     `;
+    // Attach logout function to the logout span
     document.getElementById('spanLogout').onclick = logout;
   } else {
+    // If user is not logged in, show signup and login links
     userText.innerHTML = `
       <a href="signup.html" class="text-white text-decoration-none me-2">Sign up</a> /
       <a href="login.html" class="text-white text-decoration-none">Login</a>
@@ -23,47 +27,51 @@ function updateUserSection() {
   }
 }
 
-// Logout function
+// Logout function – removes user from session and redirects to login page
 function logout() {
-  sessionStorage.removeItem("loggedInUser");
-  window.location.href = "login.html";
+  sessionStorage.removeItem("loggedInUser"); // Clear session data
+  window.location.href = "login.html";       // Redirect to login
 }
 
-// Load user orders
+// Load orders placed by the logged-in user
 function loadUserOrders() {
   const userJson = sessionStorage.getItem("loggedInUser");
   const user = userJson ? JSON.parse(userJson) : null;
 
   if (!user || !user.UserID) {
-    alert("Please log in to view your orders.");
+    alert("Please log in to view your orders.");  // Guard clause for unauthorized access
     window.location.href = "login.html";
     return;
   }
 
+  // Send AJAX GET request to fetch order history
   $.ajax({
-    url: `http://localhost:58731/api/bill/user/${user.UserID}`, 
+    url: `http://localhost:58731/api/bill/user/${user.UserID}`, // Endpoint for user orders
     method: 'GET',
     success: function (orders) {
-      console.log(orders)
-      renderOrders(orders);
+      console.log(orders); // Log orders for debugging
+      renderOrders(orders); // Render orders on the page
     },
     error: function (xhr, status, error) {
-      console.error("Failed to load orders:", error);
+      console.error("Failed to load orders:", error); // Log error for debugging
       $('#orders-list').html("<p class='text-danger'>Failed to load order history.</p>");
     }
   });
 }
 
-// Render the orders
+// Render the list of orders in the DOM
 function renderOrders(orders) {
   const container = $('#orders-list');
 
+  // If no orders exist, show appropriate message
   if (!orders || orders.length === 0) {
     container.html("<p>You have not placed any orders yet.</p>");
     return;
   }
 
+  // Loop through each order and format the HTML
   const html = orders.map(order => {
+    // Extract and render individual order items
     const items = (order.Items || order.items || []).map(item => `
       <li class="list-group-item d-flex justify-content-between align-items-center">
         <div>
@@ -74,6 +82,7 @@ function renderOrders(orders) {
       </li>
     `).join('');
 
+    // Return a full card for each order
     return `
       <div class="card mb-4 shadow">
         <div class="card-header bg-success text-white">
@@ -86,5 +95,6 @@ function renderOrders(orders) {
     `;
   }).join('');
 
+  // Inject the constructed HTML into the container
   container.html(html);
 }

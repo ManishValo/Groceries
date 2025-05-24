@@ -9,46 +9,73 @@ using WebApplication1.Models;
 
 namespace WebApplication1.ApiControllers
 {
+    /// <summary>
+    /// API controller to manage shopping cart operations such as adding, updating, retrieving, and deleting cart items.
+    /// </summary>
     [EnableCors(origins: "*", headers: "*", methods: "*")]
     [RoutePrefix("api/cart")]
     public class CartController : ApiController
     {
+        // Entity Framework DB context to access Cart table
         GroceryDBEntities db = new GroceryDBEntities();
 
-        // GET: api/cart
+        /// <summary>
+        /// Get all cart items from the database.
+        /// </summary>
         [HttpGet]
         [Route("")]
         public IHttpActionResult GetAllCarts()
         {
-            var carts = db.Carts.ToList();
-            return Ok(carts);
+            try
+            {
+                var carts = db.Carts.ToList();
+                return Ok(carts);
+            }
+            catch (Exception)
+            {
+                return InternalServerError(new Exception("Failed to retrieve cart items."));
+            }
         }
 
-        // GET: api/cart/user/5
+        /// <summary>
+        /// Get cart items for a specific user by user ID.
+        /// </summary>
+        /// <param name="userId">ID of the user.</param>
+        /// <returns> cart items with product details for the specified user.</returns>
         [HttpGet]
         [Route("user/{userId:int}")]
         public IHttpActionResult GetCartByUserId(int userId)
         {
-            var userCart = db.Carts
-                .Where(c => c.UserID == userId)
-                .Select(c => new
-                {
-                    c.CartID,
-                    c.UserID,
-                    c.ProductID,
-                    c.CartQty,
-                    c.TotalPrice,
-                    c.Grocery.ProductName,
-                    c.Grocery.ProductImg,
-                    c.Grocery.ProductPrice
-                })
-                .ToList();
+            try
+            {
+                var userCart = db.Carts
+                    .Where(c => c.UserID == userId)
+                    .Select(c => new
+                    {
+                        c.CartID,
+                        c.UserID,
+                        c.ProductID,
+                        c.CartQty,
+                        c.TotalPrice,
+                        c.Grocery.ProductName,
+                        c.Grocery.ProductImg,
+                        c.Grocery.ProductPrice
+                    })
+                    .ToList();
 
-            return Ok(userCart);
+                return Ok(userCart);
+            }
+            catch (Exception)
+            {
+                return InternalServerError(new Exception("Failed to retrieve user cart."));
+            }
         }
 
-
-        // POST: api/cart/add
+        /// <summary>
+        /// Add a new item to the cart or update it if it already exists.
+        /// </summary>
+        /// <param name="cart">Cart object containing item details.</param>
+        /// <returns>Success or error message.</returns>
         [HttpPost]
         [Route("add")]
         public IHttpActionResult AddToCart(Cart cart)
@@ -60,12 +87,13 @@ namespace WebApplication1.ApiControllers
 
                 if (existingCartItem != null)
                 {
-                    // Update quantity and total price
+                    // Item already in cart – update quantity and total price
                     existingCartItem.CartQty += cart.CartQty;
                     existingCartItem.TotalPrice += cart.TotalPrice;
                 }
                 else
                 {
+                    // New cart item – add to database
                     db.Carts.Add(cart);
                 }
 
@@ -78,46 +106,79 @@ namespace WebApplication1.ApiControllers
             }
         }
 
-        // PUT: api/cart/update
+        /// <summary>
+        /// Update the quantity and total price of a cart item.
+        /// </summary>
+        /// <param name="cart">Cart object with updated details.</param>
+        /// <returns>Success message or NotFound if item doesn't exist.</returns>
         [HttpPut]
         [Route("update")]
         public IHttpActionResult UpdateCart(Cart cart)
         {
-            var existing = db.Carts.FirstOrDefault(c => c.CartID == cart.CartID);
-            if (existing == null)
-                return NotFound();
+            try
+            {
+                var existing = db.Carts.FirstOrDefault(c => c.CartID == cart.CartID);
+                if (existing == null)
+                    return NotFound();
 
-            existing.CartQty = cart.CartQty;
-            existing.TotalPrice = cart.TotalPrice;
+                existing.CartQty = cart.CartQty;
+                existing.TotalPrice = cart.TotalPrice;
 
-            db.SaveChanges();
-            return Ok("Cart updated.");
+                db.SaveChanges();
+                return Ok("Cart updated.");
+            }
+            catch (Exception)
+            {
+                return InternalServerError(new Exception("Failed to update cart item."));
+            }
         }
 
+        /// <summary>
+        /// Delete a specific cart item by its ID.
+        /// </summary>
+        /// <param name="id">Cart item ID.</param>
         [HttpDelete]
         [Route("delete/{id:int}")]
         public IHttpActionResult DeleteCartItem(int id)
         {
-            var cart = db.Carts.Find(id);
-            if (cart == null)
-                return NotFound();
+            try
+            {
+                var cart = db.Carts.Find(id);
+                if (cart == null)
+                    return NotFound();
 
-            db.Carts.Remove(cart);
-            db.SaveChanges();
-            return Ok("Cart item deleted.");
+                db.Carts.Remove(cart);
+                db.SaveChanges();
+                return Ok("Cart item deleted.");
+            }
+            catch (Exception)
+            {
+                return InternalServerError(new Exception("Failed to delete cart item."));
+            }
         }
 
+        /// <summary>
+        /// Clear all cart items for a specific user.
+        /// </summary>
+        /// <param name="userId">User ID.</param>
         [HttpDelete]
         [Route("clear/user/{userId:int}")]
         public IHttpActionResult ClearCartByUser(int userId)
         {
-            var cartItems = db.Carts.Where(c => c.UserID == userId).ToList();
-            if (!cartItems.Any())
-                return NotFound();
+            try
+            {
+                var cartItems = db.Carts.Where(c => c.UserID == userId).ToList();
+                if (!cartItems.Any())
+                    return NotFound();
 
-            db.Carts.RemoveRange(cartItems);
-            db.SaveChanges();
-            return Ok("Cart cleared for user.");
+                db.Carts.RemoveRange(cartItems);
+                db.SaveChanges();
+                return Ok("Cart cleared for user.");
+            }
+            catch (Exception)
+            {
+                return InternalServerError(new Exception("Failed to clear user cart."));
+            }
         }
     }
 }

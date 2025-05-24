@@ -247,6 +247,7 @@ function searchProducts(event) {
   displayProducts(filtered); // Show filtered products
 }
 
+
 // Binds keyup event to search input field
 function bindSearchInput() {
   const searchInput = document.getElementById('search-input');

@@ -22,7 +22,7 @@ namespace WebApplication1.ApiControllers
         /// <summary>
         /// Retrieves all bills from the database.
         /// </summary>
-        /// <returns>List of bills with OrderID, UserID, Customer Name, Order Date, and Order Amount.</returns>
+        /// <returns> bills with OrderID, UserID, Customer Name, Order Date, and Order Amount.</returns>
         [HttpGet]
         [Route("")]
         public IHttpActionResult GetAllBills()
@@ -101,7 +101,7 @@ namespace WebApplication1.ApiControllers
         /// Retrieves details of a specific bill based on OrderID.
         /// </summary>
         /// <param name="orderId">Order ID for which details need to be retrieved.</param>
-        /// <returns>List of bill details including product information.</returns>
+        /// <returns> bill details including product information.</returns>
         [HttpGet]
         [Route("details/{orderId}")]
         public IHttpActionResult GetBillDetails(int orderId)
@@ -130,11 +130,15 @@ namespace WebApplication1.ApiControllers
             }
         }
 
+        // This endpoint retrieves all the bills (orders) placed by a specific user based on their userId
         [HttpGet]
         [Route("user/{userId}")]
         public IHttpActionResult GetUserBills(int userId)
         {
-            var bills = db.Orders
+            try {
+                // Fetch all orders for the given user from the database,
+                // ordered by most recent first (descending by OrderDate)
+                var bills = db.Orders
                 .Where(b => b.UserID == userId)
                 .OrderByDescending(b => b.OrderDate)
                 .Select(b => new
@@ -154,6 +158,11 @@ namespace WebApplication1.ApiControllers
                 .ToList();
 
             return Ok(bills);
+            }
+            catch (Exception)
+            {
+                return InternalServerError(new Exception("Server Error"));
+            }
         }
 
     }
