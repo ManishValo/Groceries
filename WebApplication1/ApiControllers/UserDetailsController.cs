@@ -25,6 +25,7 @@ namespace WebApplication1.ApiControllers
             try
             {
                 List<UserDetail> user = db.UserDetails.ToList();
+                //var user = db.UserDetails;
                 return Ok(user);
             }
             catch (Exception ex)

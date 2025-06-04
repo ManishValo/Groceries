@@ -49,7 +49,7 @@ function loadUserOrders() {
     url: `http://localhost:58731/api/bill/user/${user.UserID}`, // Endpoint for user orders
     method: 'GET',
     success: function (orders) {
-      console.log(orders); // Log orders for debugging
+      //console.log(orders); 
       renderOrders(orders); // Render orders on the page
     },
     error: function (xhr, status, error) {

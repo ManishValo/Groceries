@@ -50,7 +50,7 @@ $(document).ready(function () {
       });
 
       // Display total amount
-      $("#totalAmount").text(`Total: ₹${totalAmount}`);
+      //$("#totalAmount").text(`Total: ₹${totalAmount}`);
     },
     error: function () {
       alert("Failed to load cart.");
@@ -156,7 +156,7 @@ $(document).ready(function () {
                 });
               },
               error: function () {
-                alert("Stock update failed. Please check inventory.");
+                alert("Stock update failed");
               }
             });
           },

@@ -28,7 +28,7 @@ $(document).ready(function () {
       Name: fullName,           // User's full name
       Email: email,             // User's email address
       Password: password,       // User's password
-      TypeId: 2,                // 2 represents a customer (assumed)
+      TypeId: 2,                // 2 represents a customer
       Address: null,            // Optional fields initially set as null
       City: null,
       Pincode: null,

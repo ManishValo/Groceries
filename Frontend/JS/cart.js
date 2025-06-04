@@ -174,10 +174,19 @@ $(document).ready(function () {
       url: `http://localhost:58731/api/cart/user/${userId}`,
       method: "GET",
       success: function (cartItems) {
+        console.log(cartItems)
         if (cartItems.length === 0) {
           alert("Your cart is empty. Please add items before proceeding.");
           return;
         }
+
+      const outOfStockItems = cartItems.filter(item => item.ProductQuantity < item.CartQty);
+      if (outOfStockItems.length > 0) {
+        const names = outOfStockItems.map(i => i.ProductName).join(", ");
+        alert(`The following products are out of stock: ${names}`);
+        return;
+      }
+
         // Proceed to payment page
         window.location.href = "paymentgateway.html";
       },

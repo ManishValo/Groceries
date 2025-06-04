@@ -57,6 +57,7 @@ namespace WebApplication1.ApiControllers
                         c.ProductID,
                         c.CartQty,
                         c.TotalPrice,
+                        c.Grocery.ProductQuantity,
                         c.Grocery.ProductName,
                         c.Grocery.ProductImg,
                         c.Grocery.ProductPrice
